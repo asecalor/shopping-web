@@ -1,77 +1,93 @@
 import { useEffect, useState } from 'react';
 import './App.css';
 import Yipee from './Yipee';
+import axios from 'axios';
 
 function App() {
-  const MyProducts = [
-  {
-    id: 1,
-    name: 'Product 1',
-    price: 10.00
-  },
-  {
-    id: 2,
-    name: 'Product 2',
-    price: 10.00
-  },
-  {
-    id: 3,
-    name: 'Product 3',
-    price: 10.00
-  },
-  {
-    id: 4,
-    name: 'Product 4',
-    price: 10.00
-  },
-  {
-    id: 5,
-    name: 'Product 5',
-    price: 10.00
-  }
-]
-  const [products, setProducts] = useState(MyProducts)
-  const [cart, setCart] = useState([])
-  const [searchTerm, setSearchTerm] = useState('')
-  const [hasBought, setHasBought] = useState(false)
-  
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [cart, setCart] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [hasBought, setHasBought] = useState(false);
+
+  //cart is array of objects like {productId: 1, quantity: 1}
   const addToCart = (product) => {
-    setCart([...cart, product])
-  }
+    const productIndex = cart.findIndex((cartItem) => cartItem.productId === product.id);
+    if (productIndex === -1) {
+      setCart([...cart, { productId: product.id, quantity: 1 }]);
+    } else {
+      const newCart = [...cart];
+      newCart[productIndex].quantity++;
+      setCart(newCart);
+    }
+  };
 
   const handleSearch = (e) => {
-    setSearchTerm(e.target.value)
-  }
+    setSearchTerm(e.target.value);
+  };
 
   useEffect(() => {
-    if(searchTerm && searchTerm !== '') {
-    const newProducts = products.filter(product => {
-      return product.name.toLowerCase().includes(searchTerm.toLowerCase())
-    })
-    setProducts(newProducts)
-  } else {
-    setProducts(MyProducts)}
-  }, [products, searchTerm])
+    getAllProducts();
+  }, []);
 
+  async function getAllProducts() {
+    await axios('http://localhost:3000/product')
+      .then(response => setProducts(response.data))
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false));
+  }
+
+  const filteredProducts = searchTerm
+    ? products.filter(product =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : products;
+
+  async function buyItems() {
+    axios('http://localhost:3000/order', {
+      method: 'POST',
+      data: {
+        clientId: 1,
+        providerId: 2,
+        products: cart,
+      },
+    }).then(() => {
+      setCart([]);
+      setHasBought(true);
+    })
+    .catch(err => console.error(err));
+  }
   return (
     <div className="App">
-      {hasBought ? <Yipee /> : null}
       <header className="App-header">
-        <input className='searchBar' type='text' placeholder='Search for products' onChange={(e) => handleSearch(e)} value={searchTerm}/>
-        <div className='productList'>
-          {products.map(product => (
-            <div key={product.id} className='product'>
-              <h3>{product.name}</h3>
-              <h4>${product.price}</h4>
-              <button onClick={() => addToCart(product)}>Add to Cart</button>
+        {hasBought ? <Yipee /> : 
+        <>
+          <input
+            className="searchBar"
+            type="text"
+            placeholder="Search for products"
+            onChange={handleSearch}
+            value={searchTerm}
+          />
+          <div className="carousel">
+            <div className="productList">
+              {loading ? <h1>Loading...</h1> : null}
+              {!loading &&
+                filteredProducts.map(product => (
+                  <div key={product.id} className="product">
+                    <h3>{product.name}</h3>
+                    <button onClick={() => addToCart(product)}>Add to Cart</button>
+                  </div>
+                ))}
             </div>
-          ))}
-        </div>
-        <div className='CartArea'>
-          <h2>Cart</h2>
-          <h3>Products: {cart.length}</h3>
-          <button onClick={(e) => setHasBought(true)} >Buy Items.</button>
-        </div>
+          </div>
+          <div className="CartArea">
+            <h2>Cart</h2>
+            <h3>Products: {cart.length}</h3>
+            <button onClick={() => buyItems()}>Buy Items.</button>
+          </div>
+        </>
+        }
       </header>
     </div>
   );

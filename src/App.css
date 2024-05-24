@@ -1,7 +1,25 @@
+/* General styles */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
 .App {
   text-align: center;
 }
 
+/* Header styles */
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+/* Logo animation */
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -13,21 +31,6 @@
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
@@ -37,8 +40,20 @@
   }
 }
 
+/* Search bar styles */
+.searchBar {
+  margin: 10px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 200px;
+}
+
+/* Product styles */
 .productList {
   display: flex;
+  overflow-x:hidden;
   flex-wrap: wrap;
   justify-content: center;
 }
@@ -46,29 +61,40 @@
 .product {
   margin: 10px;
   padding: 10px;
+  width: 200px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  width: 200px;
-  text-align: center;
 }
 
-.searchBar {
-  margin: 10px;
-  padding: 10px;
-  border: 1px solid #ccc;
+.product h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.product button {
+  margin-top: 10px;
+  padding: 5px 10px;
+  font-size: 16px;
+  background-color: #61dafb;
+  border: none;
   border-radius: 5px;
-  width: 200px;
-  text-align: center;
+  cursor: pointer;
 }
 
+/* Cart area styles */
 .cartArea {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 10px;
+  margin-top: 20px;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
   width: 200px;
-  text-align: center;
+}
+
+.cartArea button {
+  padding: 10px 20px;
+  font-size: 18px;
+  background-color: #61dafb;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
