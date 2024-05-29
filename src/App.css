@@ -1,4 +1,3 @@
-/* General styles */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -8,7 +7,6 @@ body {
   text-align: center;
 }
 
-/* Header styles */
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -19,7 +17,6 @@ body {
   color: white;
 }
 
-/* Logo animation */
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -40,7 +37,6 @@ body {
   }
 }
 
-/* Search bar styles */
 .searchBar {
   margin: 10px;
   padding: 10px;
@@ -50,12 +46,20 @@ body {
   width: 200px;
 }
 
-/* Product styles */
+.carousel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: auto;
+  width: 95%;
+  margin: 20px 0;
+  padding: 10px;
+}
+
 .productList {
   display: flex;
-  overflow-x:hidden;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
 }
 
 .product {
@@ -64,6 +68,8 @@ body {
   width: 200px;
   border: 1px solid #ccc;
   border-radius: 5px;
+  color: #ccc;
+  flex: 0 0 auto; /* Prevent flex-grow, shrink only */
 }
 
 .product h3 {
@@ -81,7 +87,6 @@ body {
   cursor: pointer;
 }
 
-/* Cart area styles */
 .cartArea {
   margin-top: 20px;
   padding: 10px;

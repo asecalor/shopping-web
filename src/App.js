@@ -6,6 +6,7 @@ import axios from 'axios';
 function App() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [cart, setCart] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [hasBought, setHasBought] = useState(false);
@@ -32,8 +33,11 @@ function App() {
 
   async function getAllProducts() {
     await axios('http://localhost:3000/product')
-      .then(response => setProducts(response.data))
-      .catch(err => console.error(err))
+      .then(response => {
+        setProducts(response.data)
+        setError(null)
+      })
+      .catch(err => setError(err))
       .finally(() => setLoading(false));
   }
 
@@ -47,20 +51,28 @@ function App() {
     axios('http://localhost:3000/order', {
       method: 'POST',
       data: {
-        clientId: 1,
-        providerId: 2,
-        products: cart,
-      },
+  clientId: 1,
+  providerId: 1,
+  products: [
+    {
+      productId: 3,
+      quantity: 0
+    }
+  ]
+},
     }).then(() => {
       setCart([]);
       setHasBought(true);
+      setError(null);
     })
-    .catch(err => console.error(err));
+    .catch(err => setError(err));
   }
+
   return (
     <div className="App">
       <header className="App-header">
-        {hasBought ? <Yipee /> : 
+        {error ? <h1>{error.message}</h1> : null}
+        {hasBought ? <Yipee /> : null}
         <>
           <input
             className="searchBar"
@@ -81,13 +93,12 @@ function App() {
                 ))}
             </div>
           </div>
-          <div className="CartArea">
+          <div className="cartArea">
             <h2>Cart</h2>
             <h3>Products: {cart.length}</h3>
-            <button onClick={() => buyItems()}>Buy Items.</button>
+            <button onClick={() => buyItems()}>Buy Items</button>
           </div>
         </>
-        }
       </header>
     </div>
   );
