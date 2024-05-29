@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import './App.css';
-import Yipee from './Yipee';
 import axios from 'axios';
 
 function App() {
@@ -10,8 +9,8 @@ function App() {
   const [cart, setCart] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [hasBought, setHasBought] = useState(false);
+  const [orderId, setOrderId] = useState(null);
 
-  //cart is array of objects like {productId: 1, quantity: 1}
   const addToCart = (product) => {
     const productIndex = cart.findIndex((cartItem) => cartItem.productId === product.id);
     if (productIndex === -1) {
@@ -34,8 +33,8 @@ function App() {
   async function getAllProducts() {
     await axios('http://localhost:3000/product')
       .then(response => {
-        setProducts(response.data)
-        setError(null)
+        setProducts(response.data);
+        setError(null);
       })
       .catch(err => setError(err))
       .finally(() => setLoading(false));
@@ -51,18 +50,14 @@ function App() {
     axios('http://localhost:3000/order', {
       method: 'POST',
       data: {
-  clientId: 1,
-  providerId: 1,
-  products: [
-    {
-      productId: 3,
-      quantity: 0
-    }
-  ]
-},
-    }).then(() => {
+        clientId: 1,
+        providerId: 1,
+        products: cart
+      },
+    }).then((response) => {
       setCart([]);
       setHasBought(true);
+      setOrderId(response.data.id);
       setError(null);
     })
     .catch(err => setError(err));
@@ -72,7 +67,6 @@ function App() {
     <div className="App">
       <header className="App-header">
         {error ? <h1>{error.message}</h1> : null}
-        {hasBought ? <Yipee /> : null}
         <>
           <input
             className="searchBar"
@@ -93,13 +87,66 @@ function App() {
                 ))}
             </div>
           </div>
-          <div className="cartArea">
-            <h2>Cart</h2>
-            <h3>Products: {cart.length}</h3>
-            <button onClick={() => buyItems()}>Buy Items</button>
+          <div className="bottom">
+            <div className="cartArea">
+              <h2>Cart</h2>
+              <h3>Products: {cart.length}</h3>
+              <button onClick={() => buyItems()}>Buy Items</button>
+            </div>
+            {hasBought ? <ReviewForm orderId={orderId} /> : null}
           </div>
         </>
       </header>
+    </div>
+  );
+}
+
+function ReviewForm({ orderId }) {
+  const [rating, setRating] = useState('');
+  const [comment, setComment] = useState('');
+  const [reviewError, setReviewError] = useState(null);
+  const [reviewSuccess, setReviewSuccess] = useState(false);
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    await axios(`http://localhost:3000/review/${orderId}`, {
+      method: 'POST',
+      data: {
+        clientId: 1,
+        rating: parseInt(rating),
+        comment: comment,
+      },
+    }).then(() => {
+      setRating('');
+      setComment('');
+      setReviewSuccess(true);
+      setReviewError(null);
+    }).catch(err => setReviewError(err));
+  };
+
+  return (
+    <div className="reviewForm">
+      <h2>Leave a Review (only when delivered)</h2>
+      {reviewError ? <h3>{reviewError.message}</h3> : null}
+      {reviewSuccess ? <h3>Review submitted successfully!</h3> : null}
+      <form onSubmit={handleReviewSubmit}>
+        <input
+          type="number"
+          placeholder="Rating (1-5)"
+          value={rating}
+          onChange={(e) => setRating(e.target.value)}
+          min="1"
+          max="5"
+          required
+        />
+        <textarea
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          placeholder="Write your review here"
+          required
+        />
+        <button type="submit">Submit Review</button>
+      </form>
     </div>
   );
 }

@@ -87,6 +87,15 @@ body {
   cursor: pointer;
 }
 
+.bottom {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  padding: 20px;
+}
+
 .cartArea {
   margin-top: 20px;
   padding: 10px;
@@ -98,6 +107,37 @@ body {
 .cartArea button {
   padding: 10px 20px;
   font-size: 18px;
+  background-color: #61dafb;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.reviewForm {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 200px;
+  margin-left: 20px; /* Add space between cart and review form */
+}
+
+.reviewForm h2 {
+  margin: 0 0 10px 0;
+}
+
+.reviewForm input,
+.reviewForm textarea {
+  width: 100%;
+  padding: 5px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.reviewForm button {
+  padding: 10px;
+  font-size: 16px;
   background-color: #61dafb;
   border: none;
   border-radius: 5px;
