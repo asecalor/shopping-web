@@ -126,8 +126,8 @@ function ReviewForm({ orderId }) {
 
   return (
     <div className="reviewForm">
-      <h2>Leave a Review (only when delivered)</h2>
-      {reviewError ? <h3>{reviewError.message}</h3> : null}
+      <h2>Leave a Review</h2>
+      {reviewError ? <h3>Order has to be delivered first!</h3> : null}
       {reviewSuccess ? <h3>Review submitted successfully!</h3> : null}
       <form onSubmit={handleReviewSubmit}>
         <input
