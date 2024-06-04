@@ -10,16 +10,22 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [hasBought, setHasBought] = useState(false);
   const [orderId, setOrderId] = useState(null);
+  const [notification, setNotification] = useState('');
 
   const addToCart = (product) => {
-    const productIndex = cart.findIndex((cartItem) => cartItem.productId === product.id);
+    if (cart.length > 0 && cart[0].providerId !== product.providerId) {
+      setNotification('All products in the cart must be from the same provider.');
+      return;
+    }
+    const productIndex = cart.findIndex((cartItem) => cartItem.productId === product.productId);
     if (productIndex === -1) {
-      setCart([...cart, { productId: product.id, quantity: 1 }]);
+      setCart([...cart, { productId: product.productId, quantity: 1, providerId: product.providerId }]);
     } else {
       const newCart = [...cart];
       newCart[productIndex].quantity++;
       setCart(newCart);
     }
+    setNotification('');
   };
 
   const handleSearch = (e) => {
@@ -31,7 +37,7 @@ function App() {
   }, []);
 
   async function getAllProducts() {
-    await axios('http://localhost:3000/product')
+    await axios('http://localhost:3000/product/provider')
       .then(response => {
         setProducts(response.data);
         setError(null);
@@ -42,17 +48,23 @@ function App() {
 
   const filteredProducts = searchTerm
     ? products.filter(product =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+        product.productName.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : products;
 
   async function buyItems() {
+    if (cart.length === 0) {
+      setNotification('Cart is empty!');
+      return;
+    };
+    setNotification('');
+
     axios('http://localhost:3000/order', {
       method: 'POST',
       data: {
         clientId: 1,
-        providerId: 1,
-        products: cart
+        providerId: cart[0].providerId,
+        products: cart.map(({ productId, quantity }) => ({ productId, quantity }))
       },
     }).then((response) => {
       setCart([]);
@@ -67,6 +79,7 @@ function App() {
     <div className="App">
       <header className="App-header">
         {error ? <h1>{error.message}</h1> : null}
+        {notification ? <h2>{notification}</h2> : null}
         <>
           <input
             className="searchBar"
@@ -80,8 +93,9 @@ function App() {
               {loading ? <h1>Loading...</h1> : null}
               {!loading &&
                 filteredProducts.map(product => (
-                  <div key={product.id} className="product">
-                    <h3>{product.name}</h3>
+                  <div key={product.productId} className="product">
+                    <h3>{product.productName}</h3>
+                    <p>Provider: {product.providerName} {product.providerLastName}</p>
                     <button onClick={() => addToCart(product)}>Add to Cart</button>
                   </div>
                 ))}
@@ -126,6 +140,7 @@ function ReviewForm({ orderId }) {
 
   return (
     <div className="reviewForm">
+      <h2>Thanks for ordering!</h2>
       <h2>Leave a Review</h2>
       {reviewError ? <h3>Order has to be delivered first!</h3> : null}
       {reviewSuccess ? <h3>Review submitted successfully!</h3> : null}

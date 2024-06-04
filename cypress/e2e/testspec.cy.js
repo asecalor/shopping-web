@@ -1,11 +1,11 @@
 describe('Product App Tests', () => {
   beforeEach(() => {
-    cy.visit('http://localhost:3002/');
+    cy.visit('http://localhost:3003/');
   });
 
   it('should load the application and display initial state', () => {
-    cy.intercept('GET', 'http://localhost:3000/product').as('getProducts');
-    cy.visit('http://localhost:3002/');
+    cy.intercept('GET', 'http://localhost:3000/product/provider').as('getProducts');
+    cy.visit('http://localhost:3003/');
     cy.wait('@getProducts').its('response.statusCode').should('be.oneOf', [200, 304]);
     cy.get('.product').should('have.length.greaterThan', 0).then(() => {
       cy.log('Products loaded successfully');
@@ -28,6 +28,23 @@ describe('Product App Tests', () => {
     cy.get('.product').should('exist').first().find('button').click();
     cy.get('.cartArea h3').should('contain', 'Products: 1').then(() => {
       cy.log('Product added to cart successfully');
+    });
+  });
+
+  it('should notify if adding a product from a different provider', () => {
+    // Add first product to cart
+    const firstSearchTerm = 'iPhone'; // Assuming iPhone is from provider 1
+    cy.get('.searchBar').type(firstSearchTerm);
+    cy.get('.product').should('exist').first().find('button').click();
+    cy.get('.cartArea h3').should('contain', 'Products: 1');
+    
+    // Try adding another product from a different provider
+    const secondSearchTerm = 'Nike Air Max'; // Assuming Nike Air Max is from provider 2
+    cy.get('.searchBar').clear().type(secondSearchTerm);
+    cy.get('.product').should('exist').first().find('button').click();
+
+    cy.contains('All products in the cart must be from the same provider.').should('be.visible').then(() => {
+      cy.log('Notification displayed successfully');
     });
   });
 
