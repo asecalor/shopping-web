@@ -59,7 +59,7 @@ function App() {
     };
     setNotification('');
 
-    axios('http://localhost:3000/order', {
+    axios('http://localhost:3002/cart', {
       method: 'POST',
       data: {
         clientId: 1,
@@ -67,6 +67,10 @@ function App() {
         products: cart.map(({ productId, quantity }) => ({ productId, quantity }))
       },
     }).then((response) => {
+      if(response.statusCode) {
+        setError(response.message);
+        return;
+      }
       setCart([]);
       setHasBought(true);
       setOrderId(response.data.id);
