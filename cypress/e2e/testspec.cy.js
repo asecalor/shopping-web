@@ -149,6 +149,32 @@ describe('Product App Tests', () => {
     });
   });
 
+  it('should prevent submitting a review if the order is not delivered', () => {
+  // Step 1: Intercept the network call to get the order ID from the response
+  cy.intercept('POST', 'http://localhost:3002/cart').as('createOrder');
+
+  // Step 2: Search and add the product to the cart
+  cy.get('.searchBar').type('Test Product');
+  cy.get('.product').first().find('button').click();
+  cy.get('.cartArea button').click();
+
+  // Step 3: Wait for the network request and capture the order ID
+  cy.wait('@createOrder').then(interception => {
+    // Extract order ID from the response
+    const orderId = interception.response.body.id;
+
+    // Step 4: Attempt to submit a review without changing order status to DELIVERED
+    cy.get('.reviewForm input[type="number"]').type(4);
+    cy.get('.reviewForm textarea').type('Good product, but not delivered yet.');
+    cy.get('.reviewForm button[type="submit"]').click();
+
+    // Step 5: Check for the error message indicating that the order must be delivered first
+    cy.contains('Order has to be delivered first!').should('be.visible').then(() => {
+      cy.log('Review submission prevented for non-delivered order');
+    });
+  });
+});
+
   it('should submit a review after the order is delivered', () => {
   // Step 1: Intercept the network call to get the order ID from the response
   cy.intercept('POST', 'http://localhost:3002/cart').as('createOrder');
